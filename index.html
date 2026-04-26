@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SVA Educator Feedback</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ... (Keep all the exact same CSS styles from the previous professional frontend here) ... */
+    :root { --sva-primary: #0f172a; --sva-accent: #2563eb; --sva-bg: #f1f5f9; --sva-card: #ffffff; --sva-border: #e2e8f0; --sva-text: #334155; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--sva-bg); color: var(--sva-text); padding: 0; margin: 0; line-height: 1.6; }
+    .header { background-color: var(--sva-primary); color: white; padding: 20px 0; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+    .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.8; }
+    .container { max-width: 650px; margin: 40px auto; background: var(--sva-card); padding: 40px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+    h2 { margin-top: 0; color: var(--sva-primary); font-size: 20px; font-weight: 600; border-bottom: 2px solid var(--sva-border); padding-bottom: 15px;}
+    .step { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .error-state { background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; font-weight: 500; text-align: center; }
+    select, button, textarea { width: 100%; box-sizing: border-box; padding: 12px 15px; margin-top: 10px; border: 1px solid var(--sva-border); border-radius: 6px; font-size: 15px; font-family: 'Inter', sans-serif; }
+    button { background-color: var(--sva-accent); color: white; border: none; cursor: pointer; font-weight: 600; margin-top: 25px; font-size: 16px; transition: background-color 0.2s; }
+    button:hover { background-color: #1d4ed8; }
+    .teacher-checkbox { display: flex; align-items: center; padding: 15px; border: 1px solid var(--sva-border); margin-bottom: 10px; border-radius: 8px; cursor: pointer; }
+    .teacher-checkbox input { margin-right: 15px; transform: scale(1.2); }
+    .survey-card { border: 1px solid var(--sva-border); padding: 25px; margin-bottom: 30px; border-radius: 8px; background: #fafafa; }
+    .question-block { margin-bottom: 25px; }
+    .question-text { font-weight: 600; margin-bottom: 12px; font-size: 14px; color: #1e293b; }
+    .radio-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; font-size: 13px; }
+    .radio-group label { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; padding: 12px 8px; border: 1px solid var(--sva-border); border-radius: 6px; cursor: pointer; text-align: center; }
+    .radio-group input { margin-bottom: 8px; transform: scale(1.1); }
+    .loader { display: none; text-align: center; color: #64748b; margin-top: 20px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Silicon Valley Academy</h1>
+  <p>Educator Excellence Feedback Portal</p>
+</div>
+
+<div class="container">
+  <div id="step-0" class="step">
+    <div id="error-message" class="error-state"></div>
+  </div>
+
+  <div id="step-1" class="step">
+    <h2>Step 1: Select Classroom</h2>
+    <p style="font-size: 14px; color: #64748b;">Please select your child's classroom.</p>
+    <select id="classroom-select" onchange="loadTeachers()" disabled>
+      <option value="">Authenticating secure connection...</option>
+    </select>
+  </div>
+
+  <div id="step-2" class="step">
+    <h2>Step 2: Select Educators</h2>
+    <div id="teacher-list"></div>
+    <button onclick="generateSurvey()">Continue to Feedback</button>
+  </div>
+
+  <div id="step-3" class="step">
+    <h2>Step 3: Educator Feedback</h2>
+    <div id="dynamic-survey-container"></div>
+    <button onclick="submitForm()" id="submit-btn">Securely Submit Feedback</button>
+    <div id="loading" class="loader">Encrypting and submitting your feedback...</div>
+  </div>
+
+  <div id="step-4" class="step" style="text-align: center;">
+    <h3 style="color: #059669; font-size: 22px;">Feedback Submitted</h3>
+    <p>Thank you for your valuable insight.</p>
+    <button onclick="location.reload()" style="background-color: var(--sva-primary);">Start Another Review</button>
+  </div>
+</div>
+
+<script>
+  // --- IMPORTANT: PASTE YOUR APP SCRIPT URL HERE ---
+  const GAS_API_URL = "https://script.google.com/macros/s/AKfycbycTPVNtmYNnteQf_2kaNcCBGtZOTxhWeklavXDo-L08vhVaLDpKfq-qX7pD_dPxUSL/exec";
+  
+  // Extract token
+  const urlParams = new URLSearchParams(window.location.search);
+  const SESSION_TOKEN = urlParams.get('token');
+  
+  let classroomData = {};
+  let selectedClassroom = "";
+  let selectedTeachers = [];
+
+  // Initialize Data via Fetch API
+  if (!SESSION_TOKEN) {
+    showError("Unauthorized Access. Please use the secure link provided by SVA.");
+  } else {
+    fetch(`${GAS_API_URL}?action=getClasses&token=${SESSION_TOKEN}`)
+      .then(response => response.json())
+      .then(res => {
+        if (res.success) {
+          classroomData = res.data;
+          const select = document.getElementById('classroom-select');
+          select.innerHTML = '<option value="">-- Select Classroom --</option>';
+          select.disabled = false;
+          
+          Object.keys(classroomData).sort().forEach(classroom => {
+            let option = document.createElement('option');
+            option.value = classroom;
+            option.text = classroom;
+            select.appendChild(option);
+          });
+          document.getElementById('step-1').classList.add('active');
+        } else {
+          showError(res.error);
+        }
+      })
+      .catch(err => showError("Network error connecting to the SVA database."));
+  }
+
+  function showError(msg) {
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    document.getElementById('error-message').innerText = msg;
+    document.getElementById('step-0').classList.add('active');
+  }
+
+  function loadTeachers() {
+    selectedClassroom = document.getElementById('classroom-select').value;
+    if (!selectedClassroom) return;
+
+    const teachers = classroomData[selectedClassroom];
+    const teacherList = document.getElementById('teacher-list');
+    teacherList.innerHTML = '';
+
+    teachers.forEach((teacher, index) => {
+      let label = document.createElement('label');
+      label.className = 'teacher-checkbox';
+      label.innerHTML = `<input type="checkbox" value="${teacher}" id="tchk_${index}"> ${teacher}`;
+      teacherList.appendChild(label);
+    });
+
+    document.getElementById('step-1').classList.remove('active');
+    document.getElementById('step-2').classList.add('active');
+  }
+
+  function generateSurvey() {
+    const checkboxes = document.querySelectorAll('.teacher-checkbox input:checked');
+    selectedTeachers = Array.from(checkboxes).map(cb => cb.value);
+
+    if (selectedTeachers.length === 0) {
+      alert("Please select at least one educator.");
+      return;
+    }
+
+    const container = document.getElementById('dynamic-survey-container');
+    container.innerHTML = '';
+
+    const questions = [
+      { id: 'q1', text: "The teacher effectively fosters my child's academic growth and keeps them engaged in learning." },
+      { id: 'q2', text: "The teacher creates a positive environment that enhances my child's social and emotional well-being." },
+      { id: 'q3', text: "My child feels valued, respected, and supported by this teacher." },
+      { id: 'q4', text: "The teacher provides clear and timely updates regarding my child’s progress and classroom activities." },
+      { id: 'q5', text: "The teacher is responsive and partners effectively with me to support my child." }
+    ];
+
+    const scale = ["Strongly Disagree", "Disagree", "Agree", "Strongly Agree", "N/A"];
+
+    selectedTeachers.forEach((teacher, tIndex) => {
+      let card = `<div class="survey-card" id="card_${tIndex}"><h3>Educator: ${teacher}</h3>`;
+      
+      questions.forEach((q) => {
+        let optionsHtml = scale.map((opt) => 
+          `<label><input type="radio" name="t${tIndex}_${q.id}" value="${opt}" required> ${opt}</label>`
+        ).join('');
+
+        card += `<div class="question-block"><div class="question-text">${q.text}</div><div class="radio-group">${optionsHtml}</div></div>`;
+      });
+
+      card += `
+        <div class="question-block">
+          <div class="question-text">What are this teacher's greatest strengths in supporting your child?</div>
+          <textarea name="t${tIndex}_strengths" rows="3"></textarea>
+        </div>
+        <div class="question-block">
+          <div class="question-text">In what ways could the teacher enhance their approach?</div>
+          <textarea name="t${tIndex}_enhance" rows="3"></textarea>
+        </div></div>`;
+
+      container.innerHTML += card;
+    });
+
+    document.getElementById('step-2').classList.remove('active');
+    document.getElementById('step-3').classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function submitForm() {
+    const container = document.getElementById('dynamic-survey-container');
+    const radios = container.querySelectorAll('input[type="radio"][required]');
+    let allAnswered = true;
+    
+    let radioNames = new Set(Array.from(radios).map(r => r.name));
+    radioNames.forEach(name => {
+      if (!document.querySelector(`input[name="${name}"]:checked`)) { allAnswered = false; }
+    });
+
+    if (!allAnswered) {
+      alert("Please ensure all multiple-choice questions are answered.");
+      return;
+    }
+
+    document.getElementById('submit-btn').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    let payload = [];
+    selectedTeachers.forEach((teacher, tIndex) => {
+      let responseObj = {
+        classroom: selectedClassroom,
+        teacher: teacher,
+        q1: document.querySelector(`input[name="t${tIndex}_q1"]:checked`).value,
+        q2: document.querySelector(`input[name="t${tIndex}_q2"]:checked`).value,
+        q3: document.querySelector(`input[name="t${tIndex}_q3"]:checked`).value,
+        q4: document.querySelector(`input[name="t${tIndex}_q4"]:checked`).value,
+        q5: document.querySelector(`input[name="t${tIndex}_q5"]:checked`).value,
+        strengths: document.querySelector(`textarea[name="t${tIndex}_strengths"]`).value,
+        enhance: document.querySelector(`textarea[name="t${tIndex}_enhance"]`).value
+      };
+      payload.push(responseObj);
+    });
+
+    // Send POST request to GAS API
+    fetch(GAS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        token: SESSION_TOKEN,
+        payload: payload
+      })
+    })
+    .then(response => response.json())
+    .then(res => {
+      if(res.success) {
+        document.getElementById('step-3').classList.remove('active');
+        document.getElementById('step-4').classList.add('active');
+        window.scrollTo(0, 0);
+      } else {
+        alert("Error saving: " + res.error);
+        document.getElementById('submit-btn').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+      }
+    })
+    .catch(err => {
+      alert("Network error: Could not submit feedback.");
+      document.getElementById('submit-btn').style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+    });
+  }
+</script>
+</body>
+</html>
