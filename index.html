@@ -19,6 +19,24 @@
       --success-light: #d1fae5;
       --error: #dc2626;
       --error-light: #fee2e2;
+
+      /* Likert scale colors (red -> green spectrum) */
+      --likert-1: #dc2626;        /* Strongly Disagree */
+      --likert-1-bg: #fef2f2;
+      --likert-1-border: #fecaca;
+      --likert-2: #ea580c;        /* Disagree */
+      --likert-2-bg: #fff7ed;
+      --likert-2-border: #fed7aa;
+      --likert-3: #65a30d;        /* Agree */
+      --likert-3-bg: #f7fee7;
+      --likert-3-border: #d9f99d;
+      --likert-4: #047857;        /* Strongly Agree */
+      --likert-4-bg: #ecfdf5;
+      --likert-4-border: #a7f3d0;
+      --likert-5: #64748b;        /* N/A */
+      --likert-5-bg: #f8fafc;
+      --likert-5-border: #cbd5e1;
+
       --bg: #f8fafc;
       --card: #ffffff;
       --border: #e2e8f0;
@@ -239,29 +257,67 @@
     /* Survey cards */
     .survey-card {
       border: 1px solid var(--border);
-      padding: 24px;
-      margin-bottom: 24px;
+      padding: 0 24px 24px;
+      margin-bottom: 28px;
       border-radius: var(--radius-lg);
       background: #fff;
       box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      position: relative;
     }
-    .survey-card h3 {
-      margin: 0 0 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-strong);
+
+    /* Sticky teacher name banner - stays pinned while scrolling through questions */
+    .teacher-banner {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: 0 -24px 22px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: #fff;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+      backdrop-filter: blur(8px);
     }
-    .survey-card h3::before {
-      content: "";
-      width: 4px;
-      height: 22px;
-      background: var(--accent);
-      border-radius: 2px;
+    .teacher-banner .label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.7;
+    }
+    .teacher-banner .name {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .teacher-banner .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+      border: 1.5px solid rgba(255,255,255,0.25);
+    }
+    .teacher-banner .progress-pill {
+      background: rgba(255,255,255,0.15);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
     }
 
     .question-block { margin-bottom: 22px; }
@@ -287,29 +343,92 @@
       justify-content: flex-start;
       gap: 8px;
       background: #fff;
-      padding: 12px 6px;
+      padding: 14px 6px 12px;
       border: 1.5px solid var(--border);
       border-radius: var(--radius);
       cursor: pointer;
       text-align: center;
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text);
-      transition: border-color 0.15s, background 0.15s;
-      min-height: 78px;
+      transition: all 0.18s ease;
+      min-height: 86px;
+      position: relative;
     }
-    .radio-group label:hover { border-color: var(--border-strong); }
-    .radio-group label.checked {
-      border-color: var(--accent);
-      background: var(--accent-light);
-      color: var(--text-strong);
+    .radio-group label:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
     .radio-group input {
       margin: 0;
       width: 18px;
       height: 18px;
-      accent-color: var(--accent);
       cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 50%;
+      border: 2px solid var(--border-strong);
+      background: #fff;
+      transition: all 0.15s;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .radio-group input:checked {
+      border-width: 6px;
+    }
+
+    /* Color-coded Likert options */
+    .radio-group label.opt-1:hover { border-color: var(--likert-1); }
+    .radio-group label.opt-1 input:checked { border-color: var(--likert-1); }
+    .radio-group label.opt-1.checked {
+      background: var(--likert-1-bg);
+      border-color: var(--likert-1);
+      color: var(--likert-1);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+
+    .radio-group label.opt-2:hover { border-color: var(--likert-2); }
+    .radio-group label.opt-2 input:checked { border-color: var(--likert-2); }
+    .radio-group label.opt-2.checked {
+      background: var(--likert-2-bg);
+      border-color: var(--likert-2);
+      color: var(--likert-2);
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+    }
+
+    .radio-group label.opt-3:hover { border-color: var(--likert-3); }
+    .radio-group label.opt-3 input:checked { border-color: var(--likert-3); }
+    .radio-group label.opt-3.checked {
+      background: var(--likert-3-bg);
+      border-color: var(--likert-3);
+      color: var(--likert-3);
+      box-shadow: 0 0 0 3px rgba(101, 163, 13, 0.12);
+    }
+
+    .radio-group label.opt-4:hover { border-color: var(--likert-4); }
+    .radio-group label.opt-4 input:checked { border-color: var(--likert-4); }
+    .radio-group label.opt-4.checked {
+      background: var(--likert-4-bg);
+      border-color: var(--likert-4);
+      color: var(--likert-4);
+      box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+    }
+
+    .radio-group label.opt-5:hover { border-color: var(--likert-5); }
+    .radio-group label.opt-5 input:checked { border-color: var(--likert-5); }
+    .radio-group label.opt-5.checked {
+      background: var(--likert-5-bg);
+      border-color: var(--likert-5);
+      color: var(--likert-5);
+      box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+    }
+
+    /* Optional small color dot indicator above text */
+    .radio-group label .swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: none;
     }
 
     /* Loader */
@@ -372,22 +491,31 @@
         border-radius: var(--radius);
       }
       h2 { font-size: 19px; }
-      .survey-card { padding: 18px 16px; }
-      .survey-card h3 { font-size: 16px; }
+      .survey-card { padding: 0 16px 18px; }
+      .teacher-banner {
+        margin: 0 -16px 18px;
+        padding: 12px 16px;
+      }
+      .teacher-banner .name { font-size: 15px; }
+      .teacher-banner .label { font-size: 10px; }
 
       /* Stack Likert vertically on mobile for easier tapping */
       .radio-group {
         grid-template-columns: 1fr;
-        gap: 6px;
+        gap: 8px;
       }
       .radio-group label {
         flex-direction: row;
         justify-content: flex-start;
-        gap: 12px;
+        gap: 14px;
         min-height: 0;
-        padding: 12px 14px;
+        padding: 14px 16px;
         text-align: left;
-        font-size: 14px;
+        font-size: 14.5px;
+      }
+      .radio-group label .swatch {
+        display: block;
+        flex-shrink: 0;
       }
       button { font-size: 15px; padding: 14px 18px; }
       .btn-row { flex-direction: column; }
@@ -558,29 +686,59 @@
       { id: 'q5', text: "The teacher is responsive and partners effectively with me to support my child." }
     ];
 
-    const scale = ["Strongly Disagree", "Disagree", "Agree", "Strongly Agree", "N/A"];
+    const scale = [
+      { value: "Strongly Disagree", color: "var(--likert-1)" },
+      { value: "Disagree",          color: "var(--likert-2)" },
+      { value: "Agree",             color: "var(--likert-3)" },
+      { value: "Strongly Agree",    color: "var(--likert-4)" },
+      { value: "N/A",               color: "var(--likert-5)" }
+    ];
+
+    const totalTeachers = selectedTeachers.length;
 
     selectedTeachers.forEach((teacher, tIndex) => {
       const card = document.createElement('div');
       card.className = 'survey-card';
       card.id = `card_${tIndex}`;
 
-      let html = `<h3>${teacher}</h3>`;
+      // Build teacher initials for avatar
+      const initials = teacher.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+
+      // Sticky banner showing teacher name as parent scrolls
+      let html = `
+        <div class="teacher-banner">
+          <div class="avatar">${initials}</div>
+          <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
+            <span class="label">Reviewing Educator</span>
+            <span class="name">${teacher}</span>
+          </div>
+          <div class="progress-pill">${tIndex + 1} of ${totalTeachers}</div>
+        </div>`;
 
       questions.forEach((q) => {
-        const optionsHtml = scale.map((opt) =>
-          `<label><input type="radio" name="t${tIndex}_${q.id}" value="${opt}" required><span>${opt}</span></label>`
+        const optionsHtml = scale.map((opt, optIdx) =>
+          `<label class="opt-${optIdx + 1}">
+             <input type="radio" name="t${tIndex}_${q.id}" value="${opt.value}" required>
+             <span class="swatch" style="background:${opt.color};"></span>
+             <span>${opt.value}</span>
+           </label>`
         ).join('');
-        html += `<div class="question-block"><div class="question-text">${q.text}</div><div class="radio-group">${optionsHtml}</div></div>`;
+        html += `<div class="question-block">
+          <div class="question-text">
+            <span style="display:inline-block;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-right:8px;vertical-align:middle;">${teacher.split(/\s+/)[0]}</span>
+            ${q.text}
+          </div>
+          <div class="radio-group">${optionsHtml}</div>
+        </div>`;
       });
 
       html += `
         <div class="question-block">
-          <div class="question-text">What are this teacher's greatest strengths in supporting your child? <span style="font-weight:400;color:var(--text-muted);">(optional)</span></div>
+          <div class="question-text">What are <strong>${teacher}</strong>'s greatest strengths in supporting your child? <span style="font-weight:400;color:var(--text-muted);">(optional)</span></div>
           <textarea name="t${tIndex}_strengths" rows="3" placeholder="Share what's working well…"></textarea>
         </div>
         <div class="question-block">
-          <div class="question-text">In what ways could the teacher enhance their approach? <span style="font-weight:400;color:var(--text-muted);">(optional)</span></div>
+          <div class="question-text">In what ways could <strong>${teacher}</strong> enhance their approach? <span style="font-weight:400;color:var(--text-muted);">(optional)</span></div>
           <textarea name="t${tIndex}_enhance" rows="3" placeholder="Constructive suggestions are welcome…"></textarea>
         </div>`;
 
