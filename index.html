@@ -2,91 +2,491 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
   <title>SVA Educator Feedback</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ... (Keep all the exact same CSS styles from the previous professional frontend here) ... */
-    :root { --sva-primary: #0f172a; --sva-accent: #2563eb; --sva-bg: #f1f5f9; --sva-card: #ffffff; --sva-border: #e2e8f0; --sva-text: #334155; }
-    body { font-family: 'Inter', sans-serif; background-color: var(--sva-bg); color: var(--sva-text); padding: 0; margin: 0; line-height: 1.6; }
-    .header { background-color: var(--sva-primary); color: white; padding: 20px 0; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-    .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.8; }
-    .container { max-width: 650px; margin: 40px auto; background: var(--sva-card); padding: 40px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
-    h2 { margin-top: 0; color: var(--sva-primary); font-size: 20px; font-weight: 600; border-bottom: 2px solid var(--sva-border); padding-bottom: 15px;}
-    .step { display: none; animation: fadeIn 0.4s ease-in-out; }
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-light: #dbeafe;
+      --success: #059669;
+      --success-light: #d1fae5;
+      --error: #dc2626;
+      --error-light: #fee2e2;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #334155;
+      --text-muted: #64748b;
+      --text-strong: #0f172a;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+      --radius: 10px;
+      --radius-lg: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: #fff;
+      padding: 28px 20px;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .header p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      opacity: 0.75;
+      font-weight: 400;
+    }
+
+    /* Progress bar */
+    .progress {
+      max-width: 680px;
+      margin: 24px auto 0;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .progress-step {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      transition: background 0.3s ease;
+    }
+    .progress-step.active { background: var(--accent); }
+    .progress-step.complete { background: var(--success); }
+
+    /* Container */
+    .container {
+      max-width: 680px;
+      margin: 20px auto 60px;
+      background: var(--card);
+      padding: 36px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      color: var(--text-strong);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin: 0 0 24px;
+    }
+
+    /* Steps */
+    .step { display: none; animation: fadeIn 0.35s ease-out; }
     .step.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .error-state { background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; font-weight: 500; text-align: center; }
-    select, button, textarea { width: 100%; box-sizing: border-box; padding: 12px 15px; margin-top: 10px; border: 1px solid var(--sva-border); border-radius: 6px; font-size: 15px; font-family: 'Inter', sans-serif; }
-    button { background-color: var(--sva-accent); color: white; border: none; cursor: pointer; font-weight: 600; margin-top: 25px; font-size: 16px; transition: background-color 0.2s; }
-    button:hover { background-color: #1d4ed8; }
-    .teacher-checkbox { display: flex; align-items: center; padding: 15px; border: 1px solid var(--sva-border); margin-bottom: 10px; border-radius: 8px; cursor: pointer; }
-    .teacher-checkbox input { margin-right: 15px; transform: scale(1.2); }
-    .survey-card { border: 1px solid var(--sva-border); padding: 25px; margin-bottom: 30px; border-radius: 8px; background: #fafafa; }
-    .question-block { margin-bottom: 25px; }
-    .question-text { font-weight: 600; margin-bottom: 12px; font-size: 14px; color: #1e293b; }
-    .radio-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; font-size: 13px; }
-    .radio-group label { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; padding: 12px 8px; border: 1px solid var(--sva-border); border-radius: 6px; cursor: pointer; text-align: center; }
-    .radio-group input { margin-bottom: 8px; transform: scale(1.1); }
-    .loader { display: none; text-align: center; color: #64748b; margin-top: 20px; font-weight: 500; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Error state */
+    .error-state {
+      background: var(--error-light);
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 18px 20px;
+      border-radius: var(--radius);
+      font-weight: 500;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .error-state::before {
+      content: "⚠";
+      font-size: 28px;
+    }
+
+    /* Form controls */
+    select, textarea, button {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 44px;
+    }
+    select:disabled {
+      background-color: #f1f5f9;
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    /* Buttons */
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      margin-top: 24px;
+      padding: 15px 20px;
+      transition: background 0.15s, transform 0.05s;
+      box-shadow: var(--shadow-sm);
+    }
+    button:hover { background: var(--accent-hover); }
+    button:active { transform: translateY(1px); }
+    button:disabled {
+      background: var(--border-strong);
+      cursor: not-allowed;
+    }
+    button.secondary {
+      background: #fff;
+      color: var(--text-strong);
+      border: 1.5px solid var(--border-strong);
+    }
+    button.secondary:hover { background: #f8fafc; }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .btn-row button { margin-top: 0; }
+
+    /* Teacher selection cards */
+    .teacher-checkbox {
+      display: flex;
+      align-items: center;
+      padding: 16px 18px;
+      border: 1.5px solid var(--border);
+      margin-bottom: 10px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      background: #fff;
+      transition: border-color 0.15s, background 0.15s;
+      font-weight: 500;
+      color: var(--text-strong);
+    }
+    .teacher-checkbox:hover {
+      border-color: var(--border-strong);
+      background: #f8fafc;
+    }
+    .teacher-checkbox.checked {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .teacher-checkbox input {
+      margin-right: 14px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* Survey cards */
+    .survey-card {
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 24px;
+      border-radius: var(--radius-lg);
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .survey-card h3 {
+      margin: 0 0 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-strong);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .survey-card h3::before {
+      content: "";
+      width: 4px;
+      height: 22px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .question-block { margin-bottom: 22px; }
+    .question-block:last-child { margin-bottom: 0; }
+    .question-text {
+      font-weight: 500;
+      margin-bottom: 12px;
+      font-size: 14.5px;
+      color: var(--text-strong);
+      line-height: 1.5;
+    }
+
+    /* Likert scale - radio group */
+    .radio-group {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .radio-group label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      background: #fff;
+      padding: 12px 6px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      transition: border-color 0.15s, background 0.15s;
+      min-height: 78px;
+    }
+    .radio-group label:hover { border-color: var(--border-strong); }
+    .radio-group label.checked {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--text-strong);
+    }
+    .radio-group input {
+      margin: 0;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Loader */
+    .loader {
+      display: none;
+      text-align: center;
+      color: var(--text-muted);
+      margin-top: 20px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .loader.active { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Success state */
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      margin: 8px auto 16px;
+      background: var(--success-light);
+      color: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 700;
+    }
+    #step-4 h3 {
+      color: var(--text-strong);
+      font-size: 22px;
+      margin: 0 0 8px;
+    }
+    #step-4 p { color: var(--text-muted); margin: 0 0 24px; }
+
+    /* Helper text */
+    .helper-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      .header { padding: 22px 16px; }
+      .header h1 { font-size: 19px; }
+      .header p { font-size: 12px; }
+      .progress { margin-top: 16px; padding: 0 16px; }
+      .container {
+        margin: 16px 12px 40px;
+        padding: 22px 18px;
+        border-radius: var(--radius);
+      }
+      h2 { font-size: 19px; }
+      .survey-card { padding: 18px 16px; }
+      .survey-card h3 { font-size: 16px; }
+
+      /* Stack Likert vertically on mobile for easier tapping */
+      .radio-group {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+      .radio-group label {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        min-height: 0;
+        padding: 12px 14px;
+        text-align: left;
+        font-size: 14px;
+      }
+      button { font-size: 15px; padding: 14px 18px; }
+      .btn-row { flex-direction: column; }
+    }
+
+    @media (max-width: 380px) {
+      .container { padding: 18px 14px; }
+    }
   </style>
 </head>
 <body>
 
-<div class="header">
+<header class="header">
   <h1>Silicon Valley Academy</h1>
   <p>Educator Excellence Feedback Portal</p>
+</header>
+
+<div class="progress" id="progress" aria-hidden="true">
+  <div class="progress-step" data-step="1"></div>
+  <div class="progress-step" data-step="2"></div>
+  <div class="progress-step" data-step="3"></div>
 </div>
 
-<div class="container">
+<main class="container">
   <div id="step-0" class="step">
     <div id="error-message" class="error-state"></div>
   </div>
 
   <div id="step-1" class="step">
-    <h2>Step 1: Select Classroom</h2>
-    <p style="font-size: 14px; color: #64748b;">Please select your child's classroom.</p>
-    <select id="classroom-select" onchange="loadTeachers()" disabled>
-      <option value="">Authenticating secure connection...</option>
+    <h2>Select Classroom</h2>
+    <p class="subtitle">Choose your child's classroom to begin.</p>
+    <select id="classroom-select" onchange="loadTeachers()" disabled aria-label="Classroom">
+      <option value="">Authenticating secure connection…</option>
     </select>
   </div>
 
   <div id="step-2" class="step">
-    <h2>Step 2: Select Educators</h2>
+    <h2>Select Educators</h2>
+    <p class="subtitle">Pick one or more educators to provide feedback for.</p>
     <div id="teacher-list"></div>
-    <button onclick="generateSurvey()">Continue to Feedback</button>
+    <div class="btn-row">
+      <button class="secondary" onclick="goToStep(1)">Back</button>
+      <button onclick="generateSurvey()">Continue</button>
+    </div>
   </div>
 
   <div id="step-3" class="step">
-    <h2>Step 3: Educator Feedback</h2>
+    <h2>Educator Feedback</h2>
+    <p class="subtitle">Please answer all rating questions. Comments are optional but appreciated.</p>
     <div id="dynamic-survey-container"></div>
-    <button onclick="submitForm()" id="submit-btn">Securely Submit Feedback</button>
-    <div id="loading" class="loader">Encrypting and submitting your feedback...</div>
+    <div class="btn-row">
+      <button class="secondary" onclick="goToStep(2)" id="back-btn">Back</button>
+      <button onclick="submitForm()" id="submit-btn">Submit Feedback</button>
+    </div>
+    <div id="loading" class="loader">
+      <div class="spinner"></div>
+      <span>Securely submitting your feedback…</span>
+    </div>
   </div>
 
-  <div id="step-4" class="step" style="text-align: center;">
-    <h3 style="color: #059669; font-size: 22px;">Feedback Submitted</h3>
+  <div id="step-4" class="step" style="text-align:center;">
+    <div class="success-icon">✓</div>
+    <h3>Feedback Submitted</h3>
     <p>Thank you for your valuable insight.</p>
-    <button onclick="location.reload()" style="background-color: var(--sva-primary);">Start Another Review</button>
+    <button onclick="location.reload()">Start Another Review</button>
   </div>
-</div>
+</main>
 
 <script>
   // --- IMPORTANT: PASTE YOUR APP SCRIPT URL HERE ---
   const GAS_API_URL = "https://script.google.com/macros/s/AKfycbycTPVNtmYNnteQf_2kaNcCBGtZOTxhWeklavXDo-L08vhVaLDpKfq-qX7pD_dPxUSL/exec";
-  
-  // Extract token
+
   const urlParams = new URLSearchParams(window.location.search);
   const SESSION_TOKEN = urlParams.get('token');
-  
+
   let classroomData = {};
   let selectedClassroom = "";
   let selectedTeachers = [];
 
-  // Initialize Data via Fetch API
+  // Step / progress management
+  function setProgress(step) {
+    document.querySelectorAll('.progress-step').forEach(el => {
+      const s = parseInt(el.dataset.step, 10);
+      el.classList.remove('active', 'complete');
+      if (s < step) el.classList.add('complete');
+      else if (s === step) el.classList.add('active');
+    });
+  }
+
+  function goToStep(n) {
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    document.getElementById('step-' + n).classList.add('active');
+    if (n >= 1 && n <= 3) setProgress(n);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Initialize
   if (!SESSION_TOKEN) {
-    showError("Unauthorized Access. Please use the secure link provided by SVA.");
+    showError("Unauthorized access. Please use the secure link provided by SVA.");
   } else {
     fetch(`${GAS_API_URL}?action=getClasses&token=${SESSION_TOKEN}`)
       .then(response => response.json())
@@ -94,25 +494,26 @@
         if (res.success) {
           classroomData = res.data;
           const select = document.getElementById('classroom-select');
-          select.innerHTML = '<option value="">-- Select Classroom --</option>';
+          select.innerHTML = '<option value="">— Select Classroom —</option>';
           select.disabled = false;
-          
+
           Object.keys(classroomData).sort().forEach(classroom => {
-            let option = document.createElement('option');
+            const option = document.createElement('option');
             option.value = classroom;
             option.text = classroom;
             select.appendChild(option);
           });
-          document.getElementById('step-1').classList.add('active');
+          goToStep(1);
         } else {
-          showError(res.error);
+          showError(res.error || "Unable to load classrooms.");
         }
       })
-      .catch(err => showError("Network error connecting to the SVA database."));
+      .catch(() => showError("Network error connecting to the SVA database."));
   }
 
   function showError(msg) {
     document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    document.getElementById('progress').style.display = 'none';
     document.getElementById('error-message').innerText = msg;
     document.getElementById('step-0').classList.add('active');
   }
@@ -126,14 +527,15 @@
     teacherList.innerHTML = '';
 
     teachers.forEach((teacher, index) => {
-      let label = document.createElement('label');
+      const label = document.createElement('label');
       label.className = 'teacher-checkbox';
-      label.innerHTML = `<input type="checkbox" value="${teacher}" id="tchk_${index}"> ${teacher}`;
+      label.innerHTML = `<input type="checkbox" value="${teacher}" id="tchk_${index}"> <span>${teacher}</span>`;
+      const cb = label.querySelector('input');
+      cb.addEventListener('change', () => label.classList.toggle('checked', cb.checked));
       teacherList.appendChild(label);
     });
 
-    document.getElementById('step-1').classList.remove('active');
-    document.getElementById('step-2').classList.add('active');
+    goToStep(2);
   }
 
   function generateSurvey() {
@@ -152,100 +554,115 @@
       { id: 'q1', text: "The teacher effectively fosters my child's academic growth and keeps them engaged in learning." },
       { id: 'q2', text: "The teacher creates a positive environment that enhances my child's social and emotional well-being." },
       { id: 'q3', text: "My child feels valued, respected, and supported by this teacher." },
-      { id: 'q4', text: "The teacher provides clear and timely updates regarding my child’s progress and classroom activities." },
+      { id: 'q4', text: "The teacher provides clear and timely updates regarding my child's progress and classroom activities." },
       { id: 'q5', text: "The teacher is responsive and partners effectively with me to support my child." }
     ];
 
     const scale = ["Strongly Disagree", "Disagree", "Agree", "Strongly Agree", "N/A"];
 
     selectedTeachers.forEach((teacher, tIndex) => {
-      let card = `<div class="survey-card" id="card_${tIndex}"><h3>Educator: ${teacher}</h3>`;
-      
-      questions.forEach((q) => {
-        let optionsHtml = scale.map((opt) => 
-          `<label><input type="radio" name="t${tIndex}_${q.id}" value="${opt}" required> ${opt}</label>`
-        ).join('');
+      const card = document.createElement('div');
+      card.className = 'survey-card';
+      card.id = `card_${tIndex}`;
 
-        card += `<div class="question-block"><div class="question-text">${q.text}</div><div class="radio-group">${optionsHtml}</div></div>`;
+      let html = `<h3>${teacher}</h3>`;
+
+      questions.forEach((q) => {
+        const optionsHtml = scale.map((opt) =>
+          `<label><input type="radio" name="t${tIndex}_${q.id}" value="${opt}" required><span>${opt}</span></label>`
+        ).join('');
+        html += `<div class="question-block"><div class="question-text">${q.text}</div><div class="radio-group">${optionsHtml}</div></div>`;
       });
 
-      card += `
+      html += `
         <div class="question-block">
-          <div class="question-text">What are this teacher's greatest strengths in supporting your child?</div>
-          <textarea name="t${tIndex}_strengths" rows="3"></textarea>
+          <div class="question-text">What are this teacher's greatest strengths in supporting your child? <span style="font-weight:400;color:var(--text-muted);">(optional)</span></div>
+          <textarea name="t${tIndex}_strengths" rows="3" placeholder="Share what's working well…"></textarea>
         </div>
         <div class="question-block">
-          <div class="question-text">In what ways could the teacher enhance their approach?</div>
-          <textarea name="t${tIndex}_enhance" rows="3"></textarea>
-        </div></div>`;
+          <div class="question-text">In what ways could the teacher enhance their approach? <span style="font-weight:400;color:var(--text-muted);">(optional)</span></div>
+          <textarea name="t${tIndex}_enhance" rows="3" placeholder="Constructive suggestions are welcome…"></textarea>
+        </div>`;
 
-      container.innerHTML += card;
+      card.innerHTML = html;
+      container.appendChild(card);
+
+      // Highlight selected radio option
+      card.querySelectorAll('.radio-group').forEach(group => {
+        group.addEventListener('change', () => {
+          group.querySelectorAll('label').forEach(l => {
+            const input = l.querySelector('input');
+            l.classList.toggle('checked', input.checked);
+          });
+        });
+      });
     });
 
-    document.getElementById('step-2').classList.remove('active');
-    document.getElementById('step-3').classList.add('active');
-    window.scrollTo(0, 0);
+    goToStep(3);
   }
 
   function submitForm() {
     const container = document.getElementById('dynamic-survey-container');
     const radios = container.querySelectorAll('input[type="radio"][required]');
-    let allAnswered = true;
-    
-    let radioNames = new Set(Array.from(radios).map(r => r.name));
+    const radioNames = new Set(Array.from(radios).map(r => r.name));
+    let firstMissing = null;
+
     radioNames.forEach(name => {
-      if (!document.querySelector(`input[name="${name}"]:checked`)) { allAnswered = false; }
+      if (!document.querySelector(`input[name="${name}"]:checked`)) {
+        if (!firstMissing) firstMissing = name;
+      }
     });
 
-    if (!allAnswered) {
-      alert("Please ensure all multiple-choice questions are answered.");
+    if (firstMissing) {
+      const el = document.querySelector(`input[name="${firstMissing}"]`);
+      if (el) {
+        const block = el.closest('.question-block');
+        if (block) block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      alert("Please answer all rating questions before submitting.");
       return;
     }
 
     document.getElementById('submit-btn').style.display = 'none';
-    document.getElementById('loading').style.display = 'block';
+    document.getElementById('back-btn').style.display = 'none';
+    document.getElementById('loading').classList.add('active');
 
-    let payload = [];
-    selectedTeachers.forEach((teacher, tIndex) => {
-      let responseObj = {
-        classroom: selectedClassroom,
-        teacher: teacher,
-        q1: document.querySelector(`input[name="t${tIndex}_q1"]:checked`).value,
-        q2: document.querySelector(`input[name="t${tIndex}_q2"]:checked`).value,
-        q3: document.querySelector(`input[name="t${tIndex}_q3"]:checked`).value,
-        q4: document.querySelector(`input[name="t${tIndex}_q4"]:checked`).value,
-        q5: document.querySelector(`input[name="t${tIndex}_q5"]:checked`).value,
-        strengths: document.querySelector(`textarea[name="t${tIndex}_strengths"]`).value,
-        enhance: document.querySelector(`textarea[name="t${tIndex}_enhance"]`).value
-      };
-      payload.push(responseObj);
-    });
+    const payload = selectedTeachers.map((teacher, tIndex) => ({
+      classroom: selectedClassroom,
+      teacher: teacher,
+      q1: document.querySelector(`input[name="t${tIndex}_q1"]:checked`).value,
+      q2: document.querySelector(`input[name="t${tIndex}_q2"]:checked`).value,
+      q3: document.querySelector(`input[name="t${tIndex}_q3"]:checked`).value,
+      q4: document.querySelector(`input[name="t${tIndex}_q4"]:checked`).value,
+      q5: document.querySelector(`input[name="t${tIndex}_q5"]:checked`).value,
+      strengths: document.querySelector(`textarea[name="t${tIndex}_strengths"]`).value,
+      enhance: document.querySelector(`textarea[name="t${tIndex}_enhance"]`).value
+    }));
 
-    // Send POST request to GAS API
     fetch(GAS_API_URL, {
       method: 'POST',
-      body: JSON.stringify({
-        token: SESSION_TOKEN,
-        payload: payload
-      })
+      body: JSON.stringify({ token: SESSION_TOKEN, payload: payload })
     })
     .then(response => response.json())
     .then(res => {
-      if(res.success) {
-        document.getElementById('step-3').classList.remove('active');
-        document.getElementById('step-4').classList.add('active');
-        window.scrollTo(0, 0);
+      if (res.success) {
+        document.getElementById('progress').style.display = 'none';
+        goToStep(4);
       } else {
         alert("Error saving: " + res.error);
-        document.getElementById('submit-btn').style.display = 'block';
-        document.getElementById('loading').style.display = 'none';
+        resetSubmitState();
       }
     })
-    .catch(err => {
+    .catch(() => {
       alert("Network error: Could not submit feedback.");
-      document.getElementById('submit-btn').style.display = 'block';
-      document.getElementById('loading').style.display = 'none';
+      resetSubmitState();
     });
+  }
+
+  function resetSubmitState() {
+    document.getElementById('submit-btn').style.display = '';
+    document.getElementById('back-btn').style.display = '';
+    document.getElementById('loading').classList.remove('active');
   }
 </script>
 </body>
